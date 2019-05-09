@@ -13,6 +13,7 @@ public class Test05 {
                 while (true) {
                     try {
                         Thread.sleep(1000);
+                        System.out.println("子线程");
                     } catch (Exception e) {
                         // TODO: handle exception
                     }

@@ -10,8 +10,8 @@ package com.luluya.threadDemo.demo01;
  * 2.什么是多线程：多线程在一个进程中，有多条不同的执行路径，并行执行。目的为了提高程序效率。
  * 3.在一个进程中，一定会有主线程
  * 4.如果连线程、主线程都没有，怎么执行程序
- *     线程的分类：用户线程、守护线程
- *     主线程、子线程、GC线程
+ * 线程的分类：用户线程、守护线程
+ * 主线程、子线程、GC线程
  */
 public class Test01 {
 
@@ -20,7 +20,7 @@ public class Test01 {
      * 2,实现Runnable接口（比较好，可实现多个接口～
      * 3,使用匿名内部类方式
      * 4,使用线程池进行管理「推荐」
-     *
+     * <p>
      * 此为 主线程
      */
     public static void main(String[] args) {
@@ -31,7 +31,7 @@ public class Test01 {
         System.out.println("-----main 主线程创建启动-----");
         threadDemo01.start();// 并行执行
 //        threadDemo01.run();// 顺序执行
-        for (int i = 0; i< 10; i++) {
+        for (int i = 0; i < 10; i++) {
             System.out.println("main 主线程 i:" + i);
         }
         System.out.println("-----main 主线程创建结束-----");
@@ -50,16 +50,16 @@ public class Test01 {
 /**
  * 1.继承Thread类，重写run方法，run方法中需要线程执行代码
  */
-class ThreadDemo01 extends Thread{
+class ThreadDemo01 extends Thread {
     /**
      * run 方法中，需要线程需要执行代码
-     *
+     * <p>
      * 此为 子线程
      */
     @Override
     public void run() {
         super.run();
-        for (int i = 0; i< 10; i++) {
+        for (int i = 0; i < 10; i++) {
             System.out.println("子线程 i:" + i);
         }
     }
