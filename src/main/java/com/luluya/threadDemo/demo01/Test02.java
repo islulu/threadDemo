@@ -26,7 +26,6 @@ public class Test02 {
  * 1.实现Runnable接口，重写run方法
  */
 class ThreadDemo02 implements Runnable {
-
     @Override
     public void run() {
         for (int i = 0; i < 10; i++) {

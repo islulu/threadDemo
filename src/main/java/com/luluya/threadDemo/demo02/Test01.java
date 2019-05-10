@@ -30,13 +30,24 @@ class ThreadDemo01 implements Runnable {
     }
 
     /**
-     * synchronized底层实现原理：
-     *
+     * 同步方法
      */
-    public synchronized void sale() {
-        if (count > 0) {
-            System.out.println(Thread.currentThread().getName() + ",出售" + (100 - count + 1) + "张票");
-            count--;
+//    public synchronized void sale() {
+//        if (count > 0) {
+//            System.out.println(Thread.currentThread().getName() + ",出售" + (100 - count + 1) + "张票");
+//            count--;
+//        }
+//    }
+
+    /**
+     * 同步代码块
+     */
+    public void sale() {
+        synchronized (this) {
+            if (count > 0) {
+                System.out.println(Thread.currentThread().getName() + ",出售第" + (100 - count + 1) + "张票");
+                count--;
+            }
         }
     }
 }

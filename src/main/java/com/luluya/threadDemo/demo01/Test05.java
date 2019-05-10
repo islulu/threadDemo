@@ -6,17 +6,15 @@ package com.luluya.threadDemo.demo01;
  */
 public class Test05 {
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        Thread t1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        Thread.sleep(1000);
-                        System.out.println("子线程");
-                    } catch (Exception e) {
-                        // TODO: handle exception
-                    }
+        Thread t1 = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                    System.out.println("子线程");
+                } catch (Exception e) {
+                    // TODO: handle exception
                 }
             }
         });

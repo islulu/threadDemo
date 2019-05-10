@@ -7,18 +7,15 @@ package com.luluya.threadDemo.demo01;
 public class Test04 {
 
     public static void main(String[] args) {
-        Thread t1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 10; i++) {
-                    //阻塞
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception e) {
-                        // TODO: handle exception
-                    }
-                    System.out.println("子线程 i:" + i);
+        Thread t1 = new Thread(() -> {
+            for (int i = 0; i < 10; i++) {
+                //阻塞
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                    // TODO: handle exception
                 }
+                System.out.println("子线程 i:" + i);
             }
         });
         t1.start();
