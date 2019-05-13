@@ -4,6 +4,8 @@ import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 /**
+ * Semaphore 限流
+ *
  * @author jairy
  * @date 2019/5/11
  */
