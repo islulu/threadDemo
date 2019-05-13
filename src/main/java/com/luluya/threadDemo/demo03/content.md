@@ -10,11 +10,12 @@
 3. wait()、sleep()区别
     1. sleep()方法属于Thread类中的;wait()方法属于Object类中的。
     2. sleep()方法：导致了程序暂停执行指定的时间，让出cpu该其他线程，但监控状态依然保持者，当指定的时间到了又会自动恢复运行状态。在调用sleep()方法的过程中，线程不会释放对象锁。
-        wait()方法：线程会放弃对象锁，进入等待此对象的等待锁定池；只有针对此对象调用notify()方法后本线程才进入对象锁定池准备,获取对象锁进入运行状态。
+       wait()方法：线程会放弃对象锁，进入等待此对象的等待锁定池；只有针对此对象调用notify()方法后本线程才进入对象锁定池准备,获取对象锁进入运行状态。
 
 4. Lock锁
     并发包中新增了 Lock 接口(以及相关实现类)用来实现锁功能。
     Lock 接口提供了与 synchronized 关键字类似的同步功能，但需要在使用时手动获取锁和释放锁。
+    （* 实现机制：CAS操作，使用AQS
     
     Lock lock  = new ReentrantLock();
     lock.lock();
@@ -30,9 +31,9 @@
     0. synchronized(悲观锁)；Lock(乐观锁，读写锁接口)
     1. synchronized(内置锁 java关键字,jvm层面)；Lock(是一个类)
     2. synchronized(A.以获取锁的线程执行完同步代码，释放锁 B.线程执行发生异常，jvm会让线程释放锁)
-        Lock(在finally中必须手动释放锁，不然容易造成线程死锁)
+       Lock(在finally中必须手动释放锁，不然容易造成线程死锁)
     3. synchronized(假设A线程获得锁，B线程等待。如果A线程阻塞，B线程会一直等待)
-        Lock(分情况而定，Lock有多个锁获取的方式,可尝试获得锁，线程可以不用一直等待)
+       Lock(分情况而定，Lock有多个锁获取的方式,可尝试获得锁，线程可以不用一直等待)，比较灵活
     4. synchronized(锁状态无法判断),Lock(锁状态可以判断)
     5. synchronized(锁类型-可重入,不可中断,非公平),Lock(锁类型-可重入-可判断-可公平(两者皆可))
     6. 性能：synchronized(少量同步),Lock(大量同步)
@@ -48,6 +49,12 @@
         4;轻量级锁
         5;偏向锁
         在出现异常的时候不会因为没有释放锁而出现死锁的现象。
+        
+    * 在非常复杂的同步应用中，请考虑使用ReentrantLock
+        1.某个线程在等待一个锁的控制权的这段时间 *需要中断*
+        2.需要 *分开处理一些wait-notify*，ReentrantLock里面的Condition应用，能够控制notify哪个线程
+        3.具有 *公平锁功能* ，每个到来的线程都将排队等候
+       
 
 6. Condition用法
     Condition的功能类似于在传统的线程技术中的,Object.wait()和Object.notify()的功能。
