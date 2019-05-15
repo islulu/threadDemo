@@ -1,4 +1,4 @@
-package com.luluya.threadDemo.demo04.type05;
+package com.luluya.threadDemo.demo01;
 
 /**
  * @author jairy
@@ -79,7 +79,7 @@ class FutureClient{
     }
 }
 
-public class Test02 {
+public class FutureDemo {
     public static void main(String[] args) {
         FutureClient futureClient = new FutureClient();
         Data request = futureClient.request("请求参数.");

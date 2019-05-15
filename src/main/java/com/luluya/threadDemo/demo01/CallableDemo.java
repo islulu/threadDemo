@@ -1,4 +1,4 @@
-package com.luluya.threadDemo.demo04.type05;
+package com.luluya.threadDemo.demo01;
 
 
 import java.util.concurrent.Callable;
@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
  * @author jairy
  * @date 2019/5/12
  */
-public class Test01 {
+public class CallableDemo {
 
     public static void main(String[] args) {
         //Callable

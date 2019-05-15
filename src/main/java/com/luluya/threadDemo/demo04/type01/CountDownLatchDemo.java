@@ -1,7 +1,6 @@
 package com.luluya.threadDemo.demo04.type01;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author jairy
@@ -33,8 +32,8 @@ public class CountDownLatchDemo {
                 System.out.println(Thread.currentThread().getName() + ",子线程结束执行...");
             }
         }).start();
-
-        countDownLatch.await();// 減去为0,恢复任务继续执行
+        System.out.println("等待2个子线程执行完毕...");
+        countDownLatch.await();//调用await()方法的线程会被挂起，它会等待直到count值为0才继续执行
         System.out.println("两个子线程执行完毕....");
         System.out.println("主线程继续执行.....");
         for (int i = 0; i < 10; i++) {

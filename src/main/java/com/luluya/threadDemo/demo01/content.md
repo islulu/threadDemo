@@ -18,6 +18,38 @@
         调用start():启动线程
         调用run():使用实例调用方法
     c. 实现匿名内部类创建线程(Test03
+    d. 实现Callable创建线程(CallableDemo
+       继承Thread类/实现Runnable接口: 
+           缺点: 在线程任务执行结束后，无法获取执行结果(采用共享变量或共享存储区以及线程通信的方式实现获得任务结果的目的)
+   
+       Callable问题点：单独使用Callable，无法在新线程中(new Thread(Runnable r))使用，Thread 类只支持 Runnable。
+                      不过 Callable 可以使用 ExecutorService
+       
+       使用Callable和Future来实现获取任务结果的操作
+           Callable用来执行任务，产生结果
+           Future用来获得结果（可以返回装载有计算结果）
+       
+       Future：必要时可以通过get方法获取执行结果，该方法会阻塞直到任务返回结果。
+       Future常用方法:
+           V get() ：获取异步执行的结果，如果没有结果可用，此方法会阻塞直到异步计算完成。
+           V get(Long timeout , TimeUnit unit) ：获取异步执行结果，如果没有结果可用，此方法会阻塞，但是会有时间限制，如果阻塞时间超过设定的timeout时间，该方法将抛出异常。
+           boolean isDone() ：如果任务执行结束，无论是正常结束或是中途取消还是发生异常，都返回true。
+           boolean isCanceller() ：如果任务完成前被取消，则返回true。
+           boolean cancel(boolean mayInterruptRunning) ：
+               (mayInterruptRunning参数表示是否中断执行中的线程。)
+               如果任务还没开始，执行cancel(...)方法将返回false；
+               如果任务已经启动，执行cancel(true)方法将以中断执行此任务线程的方式来试图停止任务，如果停止成功，返回true；
+               当任务已经启动，执行cancel(false)方法将不会对正在执行的任务线程产生影响(让线程正常执行到完成)，此时返回false；
+               当任务已经完成，执行cancel(...)方法将返回false
+       
+       通过方法分析我们也知道实际上Future提供了3种功能：
+       （1）能够中断执行中的任务
+       （2）判断任务是否执行完成
+       （3）获取任务执行完成后额结果。
+       
+       FutureTask：实现了RunnableFuture接口（RunnableFuture继承了Runnable接口和Future接口）
+            既可作为Runnable被线程执行，又可作为Future得到Callable的返回值。
+            在并发的环境下，通过FutureTask作为中间转换，成功实现了让某个方法只被一个线程执行。
 
 5. 多线程五种状态
     新建状态、就绪状态、运行状态、阻塞状态、死亡状态

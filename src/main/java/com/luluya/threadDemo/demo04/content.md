@@ -5,29 +5,64 @@
         先进先出（FIFO）：先插入的队列的元素也最先出队列。从某种程度上来说这种队列也体现了一种公平性。
         后进先出（LIFO）：后插入队列的元素最先出队列，这种队列优先处理最近发生的事件。
         
-1. 并发包
+1. 并发包(类位于java.util.concurrent包下)
     (计数器)CountDownLatch:（通过AQS里面的共享锁来实现
-        类位于java.util.concurrent包下，利用它可以实现类似计数器的功能。
         eg：有一个任务A，它要等待其他4个任务执行完毕之后才能执行，此时就可以利用CountDownLatch来实现这种功能了。
+        
         CountDownLatch是通过一个计数器来实现的，#计数器的初始值为线程的数量#。
         每当一个线程完成了自己的任务后，计数器的值就会减1。当计数器值到达0时，它表示所有的线程已经完成了任务，然后在闭锁上等待的线程就可以恢复执行任务。
         
-        countDownLatch.countDown();//计数器值每次减去1
-        countDownLatch.await();// 減去为0,恢复任务继续执行
-    
+        public void await() throws InterruptedException { };   //调用await()方法的线程会被挂起，它会等待直到count值为0才继续执行
+        public boolean await(long timeout, TimeUnit unit) throws InterruptedException { };  //和await()类似，只不过等待一定的时间后count值还没变为0的话就会继续执行
+        public void countDown() { };  //将count值减1
+        
+        CountDownLatch无法进行重复使用
+        
     (屏障)CyclicBarrier:
-        CyclicBarrier初始化时规定一个数目，然后计算调用了CyclicBarrier.await()进入等待的线程数。
-            当线程数达到了这个数目时，所有进入等待状态的线程被唤醒并继续。 
-        CyclicBarrier初始时还可带一个Runnable的参数， 此Runnable任务在CyclicBarrier的数目达到后，所有其它线程被唤醒前被执行。
+        构造器：
+            - public CyclicBarrier(int parties) { }
+            CyclicBarrier初始化时规定一个数目，然后计算调用了CyclicBarrier.await()进入等待的线程数。
+                当线程数达到了这个数目时，所有进入等待状态的线程被唤醒并继续。 
+            - public CyclicBarrier(int parties, Runnable barrierAction) { }
+            CyclicBarrier初始时还可带一个Runnable的参数， 此Runnable任务在CyclicBarrier的数目达到后，所有其它线程被唤醒前被执行。
+            Runnable方法会从所有线程中选择一个线程进行执行
         
+        await方法：
+            - 【常用】public int await() throws InterruptedException, BrokenBarrierException { };
+            用来挂起当前线程，直至所有线程都到达barrier状态再同时执行后续任务
+            - public int await(long timeout, TimeUnit unit)throws InterruptedException,BrokenBarrierException,TimeoutException { };
+            让这些线程等待至一定的时间，如果还有线程没有到达barrier状态就直接让到达barrier的线程执行后续任务。
+            
+        初次的4个线程越过barrier状态后，又可以用来进行新一轮的使用
+         
     (计数信号量)Semaphore:
+        Semaphore可以控制同时访问的线程个数，通过 acquire() 获取一个许可，如果没有就等待，而 release() 释放一个许可。
         Semaphore是一种基于计数的信号量。它可以设定一个阈值，基于此，多个线程竞争获取许可信号，做自己的申请后归还，超过阈值后，线程申请许可信号将会被阻塞。
-        Semaphore可以用来构建一些对象池，资源池之类的，比如数据库连接池，我们也可以创建计数为1的Semaphore，将其作为一种类似互斥锁的机制，这也叫二元信号量，表示两种互斥状态。
-        它的用法如下：
-        availablePermits函数用来获取当前可用的资源数量
-        wc.acquire(); //申请资源
-        wc.release();// 释放资源
         
+        Semaphore可以用来构建一些对象池，资源池之类的，比如数据库连接池，也可以创建计数为1的Semaphore，将其作为一种类似互斥锁的机制，这也叫二元信号量，表示两种互斥状态。
+        
+        构造器：
+            public Semaphore(int permits) { sync = new NonfairSync(permits); }
+            //参数permits表示许可数目，即同时可以允许多少线程进行访问
+            public Semaphore(int permits, boolean fair) { sync = (fair)? new FairSync(permits) : new NonfairSync(permits); }
+            //这个多了一个参数fair表示是否是公平的，即等待时间越久的越先获取许可
+        
+        重用方法：
+            availablePermits函数用来获取当前可用的资源数量
+            会被阻塞：
+                acquire()：用来获取一个许可，若无许可能够获得，则会一直等待，直到获得许可。
+                release()：用来释放许可。注意，在释放许可之前，必须先获获得许可。
+                
+                public void acquire() throws InterruptedException {  }              //获取一个许可
+                public void acquire(int permits) throws InterruptedException { }    //获取permits个许可
+                public void release() { }                                           //释放一个许可
+                public void release(int permits) { }                                //释放permits个许可
+            
+            想立即得到执行结果：
+                public boolean tryAcquire() { };                                                                     //尝试获取一个许可，若获取成功，则立即返回true，若获取失败，则立即返回false
+                public boolean tryAcquire(long timeout, TimeUnit unit) throws InterruptedException { };              //尝试获取一个许可，若在指定的时间内获取成功，则立即返回true，否则则立即返回false
+                public boolean tryAcquire(int permits) { };                                                          //尝试获取permits个许可，若获取成功，则立即返回true，若获取失败，则立即返回false
+                public boolean tryAcquire(int permits, long timeout, TimeUnit unit) throws InterruptedException { }; //尝试获取permits个许可，若在指定的时间内获取成功，则立即返回true，否则则立即返回false
         
         // 创建一个计数阈值为5的信号量对象
         // 只能5个线程同时访问
@@ -46,6 +81,15 @@
         } catch (InterruptedException e) {
 
         }
+        
+    总结：
+    　　1）CountDownLatch和CyclicBarrier都能够实现线程之间的等待，只不过它们侧重点不同：
+            CountDownLatch：一般用于某个线程A等待若干个其他线程执行完任务之后，它才执行；
+            CyclicBarrier：一般用于一组线程互相等待至某个状态，然后这一组线程再同时执行；
+            
+            CountDownLatch是不能够重用的，而CyclicBarrier是可以重用的。
+    　　
+        2）Semaphore其实和锁有点类似，它一般用于控制对某组资源的访问权限。
 
 2. 并发队列
     在并发队列上JDK提供了两套实现(无论哪种都继承自Queue)
@@ -62,21 +106,35 @@
             3.ConcurrentLinkedQueue, （基于链表的并发队列） 
             
             4.DelayQueue, （延期阻塞队列）（阻塞队列实现了BlockingQueue接口） 
-            
-            5.ArrayBlockingQueue, （基于数组的并发阻塞队列） 
-            6.LinkedBlockingQueue, （基于链表的FIFO阻塞队列） 
-            7.LinkedBlockingDeque, （基于链表的FIFO双端阻塞队列） 
-            8.PriorityBlockingQueue, （带优先级的无界阻塞队列） 
-            9.SynchronousQueue （并发同步阻塞队列）
+            5.ArrayBlockingQueue: 基于数组的并发阻塞队列 
+            6.LinkedBlockingQueue: 基于链表的FIFO阻塞队列
+            7.LinkedBlockingDeque: 基于链表的FIFO双端阻塞队列
+            8.LinkedTransferQueue: 基于链表结构组成的无界阻塞队列
+            9.PriorityBlockingQueue: 带优先级的无界阻塞队列
+            10.SynchronousQueue: 并发同步阻塞队列
     
     - 非阻塞队列： 
-        ConcurrentLinkedQueue：
+        ConcurrentLinkedQueue：（cas操作）
+            基于链接节点的无界线程安全队列，队列的元素遵循先进先出的原则(不允许null元素); 采用了有效的“无等待 (wait-free)”算法
+            把元素放入到队列的线程的优先级 高于 对元素的访问和移除的线程。
+            
+            对公共集合的共享访问就可以工作得很好。收集关于队列大小的信息会很慢，需要遍历队列。
+            
             是一个适用于高并发场景下的队列，通过无锁的方式实现了高并发状态下的高性能。
             通常ConcurrentLinkedQueue性能好于BlockingQueue.
-            它是一个基于链接节点的无界线程安全队列。 该队列的元素遵循先进先出的原则（头是最先加入的，尾是最近加入的，该队列不允许null元素）
+            
             重要方法:
                 add()/offer():都是加入元素的方法(在ConcurrentLinkedQueue中这俩个方法没有任何区别)
                 poll()/peek():都是取头元素节点，区别在于前者会删除元素，后者不会。
+            
+            * ConcurrentLinkedQueue的.size() 是要遍历一遍集合的，很慢的;尽量要避免用size，如果判断队列是否为空最好用isEmpty()而不是用size来判断.
+            eg: queue.add(obj); 
+            使用了ConcurrentLinkedQueue直接使用它提供的函数(add/poll)不需要做任何同步;如果是非原子操作()需要自己同步
+            eg: synchronized(queue) {  
+                    if(!queue.isEmpty()) {  
+                        queue.poll(obj);  
+                    }  
+                } 
     
     - 阻塞队列：
         （在多线程领域：所谓阻塞，在某些情况下会挂起线程（即阻塞），一旦条件满足，被挂起的线程又会自动被唤醒）
@@ -96,27 +154,60 @@
             
             多消费者与多生产者，消费生产速度不一致导致需要开发者手动调整消费生产的相关细节且兼顾效率和线程安全则复杂度不低
             JUC则推出BlockingQueue
-       
+            
+            阻塞队列提供了四种处理方法:
+                方法\处理方式	 抛出异常	    返回特殊值	一直阻塞	  超时退出
+                插入方法	     add(e)	    offer(e)	put(e)	  offer(e,time,unit)
+                移除方法	     remove()	poll()	    take()	  poll(time,unit)
+                检查方法	     element()	peek()	    不可用	  不可用
         - BlockingQueue家庭中的所有成员，包括他们各自的功能以及常见使用场景：
-        有边界即 它的容量是有限的，其初始化时必须指定其容量大小，容量大小一旦指定就不可改变。
+                有边界即 它的容量是有限的，其初始化时必须指定其容量大小，容量大小一旦指定就不可改变。
+        ------------------------------------
+        阻塞队列实现了BlockingQueue接口 
         
-        ArrayBlockingQueue：
-            有边界的阻塞队列，内部实现是一个数组。以先进先出的方式存储数据
-
-        LinkedBlockingQueue：
+        5.ArrayBlockingQueue: 基于数组的并发阻塞队列 
+        6.LinkedBlockingQueue: 基于链表的FIFO阻塞队列
+        7.LinkedBlockingDeque: 基于链表的FIFO双端阻塞队列
+        8.LinkedTransferQueue: 基于链表结构组成的无界阻塞队列
+        9.PriorityBlockingQueue: 带优先级的无界阻塞队列
+        1.SynchronousQueue: 并发同步阻塞队列
+        4.DelayQueue: 支持延时获取元素的无界阻塞队列
+        
+        ArrayBlockingQueue：基于数组的FIFO并发阻塞队列
+            不保证访问者公平访问队列(公平访问队列：阻塞的所有生产者线程或消费者线程 当队列可用时按照阻塞的先后顺序访问队列。 会降低吞吐量。使用可重入锁实现)
+        
+        LinkedBlockingQueue：基于链表的FIFO阻塞队列
             队列大小的配置是可选的
-                如果我们初始化时指定一个大小，它就是有边界的，
-                如果不指定，它就是无边界的。说是无边界，其实是采用了默认大小为Integer.MAX_VALUE的容量 。它的内部实现是一个链表。
-            以先进先出的方式存储数据
-
-        PriorityBlockingQueue：
-            没有边界的队列，它的排序规则和 java.util.PriorityQueue一样。（底层是在做扩容的）
-                *注意，PriorityBlockingQueue中允许插入null对象。
-            所有插入PriorityBlockingQueue的对象必须实现java.lang.Comparable接口，队列优先级的排序规则就是按照我们对这个接口的实现来定义的。
-            可从PriorityBlockingQueue获得一个迭代器Iterator，但这个迭代器并不保证按照优先级顺序进行迭代。
+                如果我们初始化时指定一个大小，它就是有边界的
+                如果不指定，它就是无边界的。说是无边界，其实是采用了默认大小为Integer.MAX_VALUE的容量
+        
+        LinkedBlockingDeque: 基于链表的FIFO双端阻塞队列
+        
+        LinkedTransferQueue: 基于链表结构组成的无界阻塞队列
+            相对于其他阻塞队列，多了tryTransfer和transfer方法
+            transfer:如果当前有消费者正在等待接收元素(消费者使用take()方法或带时间限制的poll()方法时)
+                  可把生产者传入的元素立刻transfer(传输)给消费者。
+                  如果没有消费者在等待接收元素，将元素存放在队列的tail节点，并等到该元素被消费者消费了才返回。
+            tryTransfer:用来试探下生产者传入的元素是否能直接传给消费者
+                  如果没有消费者等待接收元素，则返回 false。立即返回结果！
+          
+        PriorityBlockingQueue：带优先级的无界阻塞队列(允许插入null对象)（底层是在做扩容的）
+            排序规则和java.util.PriorityQueue一样,
+                1。默认情况下元素采取自然顺序排列,元素按照升序排列
+                2。也可通过比较器comparator来指定元素的排序规则
+                3。可从PriorityBlockingQueue获得一个迭代器Iterator，但这个迭代器并不保证按照优先级顺序进行迭代。
         
         SynchronousQueue：
             内部仅允许容纳一个元素。当一个线程插入一个元素后会被阻塞，除非这个元素被另一个线程消费。
+            
+            不存储元素的阻塞队列。每一个put操作必须等待一个take操作，否则不能继续添加元素。
+            适合于传递性场景, 比如在一个线程中使用的数据，传递给另外一个线程使用，SynchronousQueue的吞吐量高于LinkedBlockingQueue和ArrayBlockingQueue。
+        
+        DelayQueue：支持延时获取元素的无界阻塞队列
+            使用PriorityQueue来实现，队列中的元素必须实现Delayed接口(其必须实现compareTo来指定元素的顺序)，在创建元素时可以指定多久才能从队列中获取当前元素。只有在延迟期满时才能从队列中提取元素。
+            应用场景：
+                缓存系统的设计：用DelayQueue保存缓存元素的有效期，使用一个线程循环查询DelayQueue，一旦能从DelayQueue中获取元素时，表示缓存有效期到了。
+                定时任务调度：用DelayQueue保存当天将会执行的任务和执行时间，一旦从DelayQueue中获取到任务就开始执行，从比如 TimerQueue就是使用DelayQueue实现的
 
 3. 线程池：
     （使用的是阻塞队列，因为核心线程执行需要耗时，所以需要用阻塞队列（用非阻塞队列，当核心线程未完成则会直接创建线程了）
@@ -129,8 +220,7 @@
     原理：
       Executors ThreadPoolExecutor
         corePoolSize：线程池核心线程数。最大运行线程数。当有任务来之后，就会创建一个线程去执行任务，当线程池中的线程数目达到corePoolSize后，会把到达的任务放到缓存队列当中
-        maximumPoolSize：线程池最大线程数，最大创建线程数。表示在线程池中最多能创建多少个线程
-        
+        maximumPoolSize：线程池最大线程数，最大创建线程数。表示在线程池中最多能创建多少个线程】
         核心线程数<=最大线程数
         
         keepAliveTime：表示线程没有任务执行时最多保持多久时间会终止。
@@ -147,7 +237,20 @@
         1、判断线程池里的核心线程是否都在执行任务，如果不是（核心线程空闲或者还有核心线程没有被创建）则创建一个新的工作线程来执行任务。如果核心线程都在执行任务，则进入下个流程。
         2、线程池判断工作队列是否已满，如果工作队列没有满，则将新提交的任务存储在这个工作队列里。如果工作队列满了，则进入下个流程。
         3、判断线程池里的线程是否都处于工作状态，如果没有，则创建一个新的工作线程来执行任务。如果已经满了，则交给饱和策略来处理这个任务。
-
+        
+    Executor框架是一个根据一组执行策略调用、调度、执行和控制的异步任务的框架。
+    Executors为Executor、ExecutorService、ScheduledExecutorService、ThreadFactory 和 Callable 类提供了一些工具方法。Executors 可以用于方便的创建线程池。
+    
+    execute/submit区别：
+        execute：（无对应的调用结果
+            只能提交一个Runnable的对象，且该方法的返回值是void;
+            可以设置一些变量来获取到线程的运行结果;
+            当线程的执行过程中抛出了异常通常来说主线程也无法获取到异常的信息的，只有通过ThreadFactory主动设置线程的异常处理类才能感知到提交的线程中的异常信息。
+        submit：（会有对应的返回结果
+            <T> Future<T> submit(Callable<T> task);提交一个实现了Callable接口的对象
+            Future<?> submit(Runnable task);提交一个Runable接口的对象，当调用get方法的时候，如果线程执行成功会直接返回null，如果线程执行异常会返回异常的信息
+            <T> Future<T> submit(Runnable task, T result);当线程正常结束的时候调用Future的get方法会返回result对象，当线程抛出异常的时候会获取到对应的异常的信息。
+            
 4. 自定义线程线程池
     如果当前线程池中的线程数目小于corePoolSize，则每来一个任务，就会创建一个线程去执行这个任务；
     
@@ -171,32 +274,5 @@
     CPU密集型：任务可以少配置线程数，大概和机器的cpu核数相当，这样可以使得每个线程都在执行任务
     IO密集型：大部分线程都阻塞，故需要多配置线程数，2*cpu核数
     
-    最大线程数目 = （（线程等待时间+线程CPU时间）/线程CPU时间 ）* CPU数目
     最大线程数目 = （线程等待时间与线程CPU时间之比 + 1）* CPU数目
     线程等待时间所占比例越高，需要越多线程。线程CPU时间所占比例越高，需要越少线程。 
-
-6. Callable
-    继承Thread类/实现Runnable接口: 
-        缺点: 在线程任务执行结束后，无法获取执行结果(采用共享变量或共享存储区以及线程通信的方式实现获得任务结果的目的)
-
-    使用Callable和Future来实现获取任务结果的操作
-        Callable用来执行任务，产生结果
-        Future用来获得结果
-    
-    Future常用方法:
-        V get() ：获取异步执行的结果，如果没有结果可用，此方法会阻塞直到异步计算完成。
-        V get(Long timeout , TimeUnit unit) ：获取异步执行结果，如果没有结果可用，此方法会阻塞，但是会有时间限制，如果阻塞时间超过设定的timeout时间，该方法将抛出异常。
-        boolean isDone() ：如果任务执行结束，无论是正常结束或是中途取消还是发生异常，都返回true。
-        boolean isCanceller() ：如果任务完成前被取消，则返回true。
-        boolean cancel(boolean mayInterruptRunning) ：
-            (mayInterruptRunning参数表示是否中断执行中的线程。)
-            如果任务还没开始，执行cancel(...)方法将返回false；
-            如果任务已经启动，执行cancel(true)方法将以中断执行此任务线程的方式来试图停止任务，如果停止成功，返回true；
-            当任务已经启动，执行cancel(false)方法将不会对正在执行的任务线程产生影响(让线程正常执行到完成)，此时返回false；
-            当任务已经完成，执行cancel(...)方法将返回false
-    
-    通过方法分析我们也知道实际上Future提供了3种功能：
-    （1）能够中断执行中的任务
-    （2）判断任务是否执行完成
-    （3）获取任务执行完成后额结果。
-    
