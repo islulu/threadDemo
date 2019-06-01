@@ -15,8 +15,6 @@
     a,使用多线程之间同步synchronized/使用锁(lock)
         (只能让当前一个线程进行执行。代码执行完成后释放锁，让后才能让其他线程进行执行。
 
-   多线程之间同步:当多个线程共享同一个资源,不会受到其他线程的干扰。
-
 2. 同步
     同步的前提： 
         1，必须要有两个或者两个以上的线程 
@@ -44,7 +42,6 @@
     ThreadLocal实现原理:
         ThreadLocal通过map集合
         Map.put(“当前线程”,值)；
-    
     原理：
         每个Thread维护着一个ThreadLocalMap的引用
         ThreadLocalMap是ThreadLocal的内部类，用Entry来进行存储
@@ -115,12 +112,10 @@
     2) volatile是变量修饰符，仅能用于变量，而synchronized是一个方法或块的修饰符
            volatile本质是在告诉jvm当前变量在寄存器中的值是不确定的，使用前需要先从主存中读取，so实现了可见性，
            对于n=n+1,n++操作时volatile关键字将失效，不能起到像synchronized一样的线程同步（原子性）的效果。
-    3) volatile不需要加锁; 比synchronized更轻量级，并不会阻塞线程
-    4) volatile标记的变量不会被编译器优化，synchronized标记的变量可被编译器优化（如编译器重排序的优化）
-    5) volatile本质是在告诉jvm当前变量在寄存器（工作内存）中的值是不确定的，需要从主存中读取； 
+    3) volatile标记的变量不会被编译器优化，synchronized标记的变量可被编译器优化（如编译器重排序的优化）
+    4) volatile不需要加锁; 比synchronized更轻量级，并不会阻塞线程；
        synchronized则是锁定当前变量，只有当前线程可以访问该变量，其他线程被阻塞住;
-    
-    6) 性能方面：
+    5) 性能方面：
         synchronized关键字是防止多个线程同时执行一段代码，就会影响程序执行效率，
         volatile关键字在某些情况下性能要优于synchronized。
         但是要注意volatile关键字是无法替代synchronized关键字的，因为volatile关键字无法保证操作的原子性。

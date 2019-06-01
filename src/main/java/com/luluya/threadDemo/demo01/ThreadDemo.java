@@ -13,7 +13,7 @@ package com.luluya.threadDemo.demo01;
  * 线程的分类：用户线程、守护线程
  * 主线程、子线程、GC线程
  */
-public class Test01 {
+class Test01 {
 
     /**
      * 1,继承Thread类
@@ -26,7 +26,7 @@ public class Test01 {
     public static void main(String[] args) {
         //1.创建线程
         System.out.println("-----main 主线程创建开始-----");
-        ThreadDemo01 threadDemo01 = new ThreadDemo01();
+        ThreadDemo threadDemo01 = new ThreadDemo();
         //2.启动线程
         System.out.println("-----main 主线程创建启动-----");
         threadDemo01.start();// 并行执行
@@ -50,7 +50,7 @@ public class Test01 {
 /**
  * 1.继承Thread类，重写run方法，run方法中需要线程执行代码
  */
-class ThreadDemo01 extends Thread {
+public class ThreadDemo extends Thread {
     /**
      * run 方法中，需要线程需要执行代码
      * <p>

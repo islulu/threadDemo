@@ -10,7 +10,7 @@
     两个线程同时读一个资源没有任何问题，允许多个线程能在同时读取共享资源。
     有一个线程想去写这些共享资源，就不应该再有其它线程对该资源进行读或写。
     即：读-读能共存，读-写不能共存，写-写不能共存
-    ReentrantReadWriteLock:
+    ReentrantReadWriteLock
 
 3. 悲观锁、乐观锁
     乐观锁:
@@ -112,19 +112,22 @@ to_study
 - AQS：队列同步器; JUC并发包中的核心基础组件。
      构建锁或者其他同步组件的基础框架（如ReentrantLock、ReentrantReadWriteLock、Semaphore等）
     
-    实现同步器时涉及当的大量细节问题（例如获取同步状态、FIFO同步队列）能够极大地减少实现工作，且不必处理在多个位置上发生的竞争问题。
+    实现同步器时涉及到的大量细节问题（例如获取同步状态、FIFO同步队列）能够极大地减少实现工作，且不必处理在多个位置上发生的竞争问题。
     在基于AQS构建的同步器中，只能在一个时刻发生阻塞，从而降低上下文切换的开销，提高了吞吐量。
     同时在设计AQS时充分考虑了可伸缩行，因此J.U.C中所有基于AQS构建的同步器均可以获得这个优势。
     
     采用模板方法设计模式，主要使用方式是继承，子类通过继承同步器并实现它的抽象方法来管理同步状态
-    AQS提供了大量的模板方法来实现同步，主要是分为三类：独占式获取和释放同步状态、共享式获取和释放同步状态、查询同步队列中的等待线程情况。自定义子类使用AQS提供的模板方法就可以实现自己的同步语义。
+    AQS提供了大量的模板方法来实现同步，主要是分为三类：
+        独占式获取和释放同步状态
+        共享式获取和释放同步状态
+        查询同步队列中的等待线程情况
     
-    - AQS使用一个int类型的成员变量state来表示同步状态
+    AQS使用一个int类型的成员变量state来表示同步状态
         当state>0时表示已经获取了锁
         当state=0时表示释放了锁。
         它提供了三个方法 getState()、setState(int newState)、compareAndSetState(int expect,int update)）来对同步状态state进行操作，当然AQS可以确保对state的操作是安全的。
     
-    - AQS通过CLH同步队列(FIFO双向队列，AQS依赖它来完成同步状态的管理)来完成资源获取线程的排队工作，
+    AQS通过CLH同步队列(FIFO双向队列，AQS依赖它来完成同步状态的管理)来完成资源获取线程的排队工作，
         当前线程如果获取同步状态失败时，AQS则会将当前线程已经等待状态等信息构造成一个节点（Node）并将其加入到CLH同步队列，同时会阻塞当前线程。
         当同步状态释放时，会把首节点唤醒（公平锁），使其再次尝试获取同步状态。
         (一个节点表示一个线程，它保存着线程的引用(thread)、状态(waitStatus)、前驱节点(prev)、后继节点(next))
@@ -132,13 +135,15 @@ to_study
         * AQS通过“死循环”的方式来保证节点可以正确添加，只有成功添加后，当前线程才会从该方法返回，否则会一直执行下去。
         出列：首节点的线程释放同步状态后，将会唤醒它的后继节点（next），而后继节点将会在获取同步状态成功时将自己设置为首节点（不需要使用CAS
         
-    - java并发包提供的加锁模式分为独占锁和共享锁
+    java并发包提供的加锁模式分为独占锁和共享锁
         独占锁：每次只能有一个线程能持有锁，（ReentrantLock就是以独占方式实现的互斥锁）
-        共享锁：允许多个线程同时获取锁，并发访问共享资源（ReadWriteLock）AQS的内部类Node定义了两个常量SHARED和EXCLUSIVE，他们分别标识 AQS队列中等待线程的锁获取模式。
-   
+        共享锁：允许多个线程同时获取锁，并发访问共享资源（ReadWriteLock）
+
+        AQS的内部类Node定义了两个常量SHARED和EXCLUSIVE，他们分别标识 AQS队列中等待线程的锁获取模式。
         AQS提供了独占锁和共享锁必须实现的方法，
             具有独占锁功能的子类，它必须实现tryAcquire、tryRelease、isHeldExclusively等；
             共享锁功能的子类，必须实现tryAcquireShared和tryReleaseShared等方法，带有Shared后缀的方法都是支持共享锁加锁的语义。
                 Semaphore是一种共享锁，ReentrantLock是一种独占锁。
-        AQS的ConditionObject只能与ReentrantLock(独占锁)一起使用，它是为了支持条件队列的锁更方便。（ConditionObject的signal和await方法都是基于独占锁的，如果线程非锁的独占线程，则会抛出IllegalMonitorStateException
+        AQS的ConditionObject只能与ReentrantLock(独占锁)一起使用，它是为了支持条件队列的锁更方便。
+        （ConditionObject的signal和await方法都是基于独占锁的，如果线程非锁的独占线程，则会抛出IllegalMonitorStateException
        

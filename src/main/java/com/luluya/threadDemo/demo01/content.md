@@ -10,9 +10,9 @@
     作用：提高程序效率（eg:迅雷多线程下载、数据库连接池、分批发送短信等
 
 2. 线程创建方式：
-    a. 继承thread创建线程(Test01
+    a. 继承thread创建线程(ThreadDemo
         重写run方法（开启线程不是调用run方法，而是start方法
-    b. 实现runnable创建线程(Test02
+    b. 实现runnable创建线程(Runnable
         重写run方法（开启线程不是调用run方法，而是start方法
         *_实现Runnable接口好（实现了接口还可继续继承
         调用start():启动线程
@@ -21,7 +21,7 @@
     d. 实现Callable创建线程(CallableDemo
        继承Thread类/实现Runnable接口: 
            缺点: 在线程任务执行结束后，无法获取执行结果(采用共享变量或共享存储区以及线程通信的方式实现获得任务结果的目的)
-   
+
        Callable问题点：单独使用Callable，无法在新线程中(new Thread(Runnable r))使用，Thread 类只支持 Runnable。
                       不过 Callable 可以使用 ExecutorService
        
@@ -35,8 +35,7 @@
            V get(Long timeout , TimeUnit unit) ：获取异步执行结果，如果没有结果可用，此方法会阻塞，但是会有时间限制，如果阻塞时间超过设定的timeout时间，该方法将抛出异常。
            boolean isDone() ：如果任务执行结束，无论是正常结束或是中途取消还是发生异常，都返回true。
            boolean isCanceller() ：如果任务完成前被取消，则返回true。
-           boolean cancel(boolean mayInterruptRunning) ：
-               (mayInterruptRunning参数表示是否中断执行中的线程。)
+           boolean cancel(boolean mayInterruptRunning) ：(mayInterruptRunning参数表示是否中断执行中的线程)
                如果任务还没开始，执行cancel(...)方法将返回false；
                如果任务已经启动，执行cancel(true)方法将以中断执行此任务线程的方式来试图停止任务，如果停止成功，返回true；
                当任务已经启动，执行cancel(false)方法将不会对正在执行的任务线程产生影响(让线程正常执行到完成)，此时返回false；
@@ -45,7 +44,7 @@
        通过方法分析我们也知道实际上Future提供了3种功能：
        （1）能够中断执行中的任务
        （2）判断任务是否执行完成
-       （3）获取任务执行完成后额结果。
+       （3）获取任务执行完成后的结果。
        
        FutureTask：实现了RunnableFuture接口（RunnableFuture继承了Runnable接口和Future接口）
             既可作为Runnable被线程执行，又可作为Future得到Callable的返回值。
