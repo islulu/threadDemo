@@ -113,8 +113,8 @@
             9.PriorityBlockingQueue: 带优先级的无界阻塞队列
             10.SynchronousQueue: 并发同步阻塞队列
     
-    - 非阻塞队列： 
-        ConcurrentLinkedQueue：（cas操作）
+    - 非阻塞队列:
+        ConcurrentLinkedQueue：（CAS操作）
             基于链接节点的无界线程安全队列，队列的元素遵循先进先出的原则(不允许null元素); 采用了有效的“无等待 (wait-free)”算法
             把元素放入到队列的线程的优先级 高于 对元素的访问和移除的线程。
             
@@ -125,16 +125,16 @@
             
             重要方法:
                 add()/offer():都是加入元素的方法(在ConcurrentLinkedQueue中这俩个方法没有任何区别)
-                poll()/peek():都是取头元素节点，区别在于前者会删除元素，后者不会。
+                poll()/peek():都是取头元素节点,区别在于前者会删除元素，后者不会。
             
             * ConcurrentLinkedQueue的.size() 是要遍历一遍集合的，很慢的;尽量要避免用size，如果判断队列是否为空最好用isEmpty()而不是用size来判断.
-            eg: queue.add(obj); 
-            使用了ConcurrentLinkedQueue直接使用它提供的函数(add/poll)不需要做任何同步;如果是非原子操作()需要自己同步
-            eg: synchronized(queue) {  
-                    if(!queue.isEmpty()) {  
-                        queue.poll(obj);  
-                    }  
-                } 
+            eg: queue.add(obj);
+            使用了ConcurrentLinkedQueue直接使用它提供的函数(add/poll)不需要做任何同步;如果是非原子操作 需要自己同步
+            eg: synchronized(queue){
+                    if(!queue.isEmpty()) {
+                        queue.poll(obj);
+                    }
+                }
     
     - 阻塞队列：
         （在多线程领域：所谓阻塞，在某些情况下会挂起线程（即阻塞），一旦条件满足，被挂起的线程又会自动被唤醒）

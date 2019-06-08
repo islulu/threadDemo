@@ -37,6 +37,7 @@ public class CallableDemo {
         System.out.println("主线程执行任务");
         //Future模式：不需要等待子线程执行完毕后再执行主线程，无需等待
     }
+
 }
 
 class TaskFuture implements Callable<String>{
