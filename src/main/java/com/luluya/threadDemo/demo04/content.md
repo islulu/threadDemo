@@ -246,13 +246,13 @@
     Executors可以用于方便的创建线程池。
     
     execute/submit区别：
-        execute：（无对应的调用结果
+        execute:(无对应的调用结果)
             只能提交一个Runnable的对象，且该方法的返回值是void;
             可以设置一些变量来获取到线程的运行结果;
             当线程的执行过程中抛出了异常通常来说主线程也无法获取到异常的信息的，只有通过ThreadFactory主动设置线程的异常处理类才能感知到提交的线程中的异常信息。
-        submit：（会有对应的返回结果
+        submit:(会有对应的返回结果)
             <T> Future<T> submit(Callable<T> task);提交一个实现了Callable接口的对象
-            Future<?> submit(Runnable task);提交一个Runable接口的对象，当调用get方法的时候，如果线程执行成功会直接返回null，如果线程执行异常会返回异常的信息
+            Future<?> submit(Runnable task);提交一个Runnable接口的对象，当调用get方法的时候，如果线程执行成功会直接返回null，如果线程执行异常会返回异常的信息
             <T> Future<T> submit(Runnable task, T result);当线程正常结束的时候调用Future的get方法会返回result对象，当线程抛出异常的时候会获取到对应的异常的信息。
             
 4. 自定义线程线程池
