@@ -24,7 +24,7 @@
             CyclicBarrier初始化时规定一个数目，然后计算调用了CyclicBarrier.await()进入等待的线程数。
                 当线程数达到了这个数目时，所有进入等待状态的线程被唤醒并继续。 
             - public CyclicBarrier(int parties, Runnable barrierAction) { }
-            CyclicBarrier初始时还可带一个Runnable的参数， 此Runnable任务在CyclicBarrier的数目达到后，所有其它线程被唤醒前被执行。
+            CyclicBarrier初始时还可带一个Runnable的参数，此Runnable任务在CyclicBarrier的数目达到后，所有其它线程被唤醒前被执行。
             Runnable方法会从所有线程中选择一个线程进行执行
         
         await方法：
@@ -37,8 +37,7 @@
          
     (计数信号量)Semaphore:
         Semaphore可以控制同时访问的线程个数，通过 acquire() 获取一个许可，如果没有就等待，而 release() 释放一个许可。
-        Semaphore是一种基于计数的信号量。它可以设定一个阈值，基于此，多个线程竞争获取许可信号，做自己的申请后归还，超过阈值后，线程申请许可信号将会被阻塞。
-        
+        Semaphore是一种基于计数的信号量。它可以设定一个阈值，基于此，多个线程竞争获取许可信号，做自己的申请后归还，超过阈值后，线程申请许可信号将会被阻塞
         Semaphore可以用来构建一些对象池，资源池之类的，比如数据库连接池，也可以创建计数为1的Semaphore，将其作为一种类似互斥锁的机制，这也叫二元信号量，表示两种互斥状态。
         
         构造器：
@@ -46,18 +45,16 @@
             //参数permits表示许可数目，即同时可以允许多少线程进行访问
             public Semaphore(int permits, boolean fair) { sync = (fair)? new FairSync(permits) : new NonfairSync(permits); }
             //这个多了一个参数fair表示是否是公平的，即等待时间越久的越先获取许可
-        
         重用方法：
             availablePermits函数用来获取当前可用的资源数量
             会被阻塞：
                 acquire()：用来获取一个许可，若无许可能够获得，则会一直等待，直到获得许可。
                 release()：用来释放许可。注意，在释放许可之前，必须先获获得许可。
-                
+                --------------
                 public void acquire() throws InterruptedException {  }              //获取一个许可
                 public void acquire(int permits) throws InterruptedException { }    //获取permits个许可
                 public void release() { }                                           //释放一个许可
                 public void release(int permits) { }                                //释放permits个许可
-            
             想立即得到执行结果：
                 public boolean tryAcquire() { };                                                                     //尝试获取一个许可，若获取成功，则立即返回true，若获取失败，则立即返回false
                 public boolean tryAcquire(long timeout, TimeUnit unit) throws InterruptedException { };              //尝试获取一个许可，若在指定的时间内获取成功，则立即返回true，否则则立即返回false
@@ -100,11 +97,10 @@
         阻塞队列与普通队列的区别在于:
             当队列是空时，从队列中获取元素的操作将会被阻塞，直到其他的线程往空的队列插入新的元素。
             当队列是满时，往队列里添加元素的操作会被阻塞，直到其他的线程使队列重新变得空闲起来（从队列中移除一个或者多个元素，或者完全清空队列）
-            
             1.ArrayDeque, （数组双端队列） 
             2.PriorityQueue, （优先级队列） 
             3.ConcurrentLinkedQueue, （基于链表的并发队列） 
-            
+            ----------------
             4.DelayQueue, （延期阻塞队列）（阻塞队列实现了BlockingQueue接口） 
             5.ArrayBlockingQueue: 基于数组的并发阻塞队列 
             6.LinkedBlockingQueue: 基于链表的FIFO阻塞队列
@@ -114,22 +110,22 @@
             10.SynchronousQueue: 并发同步阻塞队列
     
     - 非阻塞队列:
-        ConcurrentLinkedQueue：（CAS操作）
-            基于链接节点的无界线程安全队列，队列的元素遵循先进先出的原则(不允许null元素); 采用了有效的“无等待 (wait-free)”算法
-            把元素放入到队列的线程的优先级 高于 对元素的访问和移除的线程。
+        ConcurrentLinkedQueue:(CAS操作)
+            基于链接节点的无界线程安全队列，队列的元素遵循先进先出的原则(不允许null元素)
+            采用了有效的“无等待(wait-free)”算法
+            把元素放入到队列的线程的优先级 高于 对元素的访问和移除的线程
             
-            对公共集合的共享访问就可以工作得很好。收集关于队列大小的信息会很慢，需要遍历队列。
+            对公共集合的共享访问就可以工作得很好。收集关于队列大小的信息会很慢,需要遍历队列
             
-            是一个适用于高并发场景下的队列，通过无锁的方式实现了高并发状态下的高性能。
-            通常ConcurrentLinkedQueue性能好于BlockingQueue.
-            
+            是一个适用于高并发场景下的队列,通过无锁的方式实现了高并发状态下的高性能
+            通常ConcurrentLinkedQueue性能好于BlockingQueue
             重要方法:
                 add()/offer():都是加入元素的方法(在ConcurrentLinkedQueue中这俩个方法没有任何区别)
-                poll()/peek():都是取头元素节点,区别在于前者会删除元素，后者不会。
+                poll()/peek():都是取头元素节点,区别在于前者会删除元素,后者不会
             
-            * ConcurrentLinkedQueue的.size() 是要遍历一遍集合的，很慢的;尽量要避免用size，如果判断队列是否为空最好用isEmpty()而不是用size来判断.
+            * ConcurrentLinkedQueue的.size()是要遍历一遍集合的,很慢的;尽量要避免用size,如果判断队列是否为空最好用isEmpty()而不是用size来判断
             eg: queue.add(obj);
-            使用了ConcurrentLinkedQueue直接使用它提供的函数(add/poll)不需要做任何同步;如果是非原子操作 需要自己同步
+            使用了ConcurrentLinkedQueue直接使用它提供的函数(add/poll)不需要做任何同步;如果是非原子操作需要自己同步
             eg: synchronized(queue){
                     if(!queue.isEmpty()) {
                         queue.poll(obj);
@@ -139,22 +135,22 @@
     - 阻塞队列：
         （在多线程领域：所谓阻塞，在某些情况下会挂起线程（即阻塞），一旦条件满足，被挂起的线程又会自动被唤醒）
 
-        BlockingQueue：（位于java.util.concurrent 包中(在Java5版本开始提供) 是线程安全的
+        BlockingQueue：位于java.util.concurrent包中(在Java5版本开始提供)是线程安全的
             一个支持两个附加操作的队列。
             这两个附加的操作是：
                 在队列空时，获取元素的线程会等待队列变为非空。
-                当队列满时，存储元素的线程会等待队列可用。 
-            
+                当队列满时，存储元素的线程会等待队列可用。
+
             阻塞队列常用于生产者和消费者的场景：生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。
             阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。
-            
+
             被阻塞的情况主要有如下两种：
                 1. 当队列满了的时候进行入队列操作（除非有另一个线程做了出队列操作
                 2. 当队列空了的时候进行出队列操作（除非有另一个线程进行了入队列操作
-            
+
             多消费者与多生产者，消费生产速度不一致导致需要开发者手动调整消费生产的相关细节且兼顾效率和线程安全则复杂度不低
             JUC则推出BlockingQueue
-            
+
             阻塞队列提供了四种处理方法:
                 方法\处理方式	 抛出异常	    返回特殊值	一直阻塞	  超时退出
                 插入方法	     add(e)	    offer(e)	put(e)	  offer(e,time,unit)
@@ -164,8 +160,8 @@
         - BlockingQueue家庭中的所有成员，包括他们各自的功能以及常见使用场景：
                 有边界即 它的容量是有限的，其初始化时必须指定其容量大小，容量大小一旦指定就不可改变。
         ------------------------------------
-        阻塞队列实现了BlockingQueue接口 
-        
+        阻塞队列实现了BlockingQueue接口
+
         5.ArrayBlockingQueue: 基于数组的并发阻塞队列 
         6.LinkedBlockingQueue: 基于链表的FIFO阻塞队列
         7.LinkedBlockingDeque: 基于链表的FIFO双端阻塞队列

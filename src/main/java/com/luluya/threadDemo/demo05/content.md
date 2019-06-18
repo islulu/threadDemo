@@ -3,8 +3,8 @@
     同一线程外层函数获得锁之后，内层递归函数仍然有获取该锁的代码，但不受影响。
     且内层函数可以获取外层函数锁的状态，如果已经获取锁/释放锁 则不在进行对应操作（防止死锁）
     
-    Synchronized重入锁:(重量级)（悲观锁）
-    ReentrantLock重入锁:(轻量级)（悲观锁）
+    Synchronized重入锁:(重量级)(悲观锁)
+    ReentrantLock重入锁:(轻量级)(悲观锁)
     
 2. 读写锁（JUC包）
     两个线程同时读一个资源没有任何问题，允许多个线程能在同时读取共享资源。
@@ -16,22 +16,19 @@
     乐观锁:
         不会上锁。如果满足条件则操作，如果不满足条件则重试。
         在更新时会判断其他线程在这之前有没有对数据进行修改，一般会使用版本号机制或CAS操作实现。
-        
         - version方式：
             在数据表中加上数据版本号version字段，表示数据被修改的次数，当数据被修改时，version值会加一。
             当线程A更新数据值时，在读取数据同时也会读取version值，在提交更新时，若刚才读取到的version值为当前数据库中的version值相等时才更新，否则重试更新操作，直到更新成功。
             * 核心SQL语句
-            update table set x=x+1, version=version+1 where id=#{id} and version=#{version};    
-        
+            update table set x=x+1, version=version+1 where id=#{id} and version=#{version};
         - CAS操作方式：即compare and swap 或者 compare and set，涉及到三个操作数，数据所在的 内存值，预期值，新值。
             当需要更新时，判断当前内存值与之前取到的值是否相等，若相等，则用新值更新，若失败则重试，一般情况下是一个自旋操作，即不断的重试。
-            
     悲观锁:
         总是假设最坏的情况，每次取数据时都认为其他线程会修改，都会加锁（读锁、写锁、行锁等），当其他线程想要访问数据时，都需要阻塞挂起。
         可以依靠数据库实现，如行锁、读锁和写锁等，都是在操作之前加锁，在Java中，synchronized的思想也是悲观锁。
     
 4. 原子类
-    Atomic：（乐观锁）使用CAS操作
+    Atomic:(乐观锁)使用CAS操作
         java.util.concurrent.atomic包;原子类的小工具包,支持在单个变量上解除锁的线程安全编程
         原子变量类相当于一种泛化的volatile变量，能够支持原子的和有条件的读-改-写操作。
         
@@ -41,51 +38,45 @@
             AtomicBoolean：原子更新布尔类型。
             AtomicInteger：原子更新整型。
             AtomicLong：原子更新长整型。
-            如果是更新其他基本类型（char，float和double等），会把对应的类型转换为整型 再使用CAS操作）
-            
+                如果是更新其他基本类型（char、float和double等），会把对应的类型转换为整型 再使用CAS操作）
             AtomicInteger表示一个int类型的值，并提供了get和set方法，这些Volatile类型的int变量在读取和写入上有着相同的内存语义。
-            它还提供了一个原子的compareAndSet方法（如果该方法成功执行，那么将实现与读取/写入一个volatile变量相同的内存效果），以及原子的添加、递增和递减等方法。
-            AtomicInteger表面上非常像一个扩展的Counter类，但在发生竞争的情况下能提供更高的可伸缩性，因为它直接利用了硬件对并发的支持。
-        
+                它还提供了一个原子的compareAndSet方法（如果该方法成功执行，那么将实现与读取/写入一个volatile变量相同的内存效果），以及原子的添加、递增和递减等方法。
+                AtomicInteger表面上非常像一个扩展的Counter类，但在发生竞争的情况下能提供更高的可伸缩性，因为它直接利用了硬件对并发的支持。
+
         2.原子更新数组
             AtomicIntegerArray：原子更新整型数组里的元素。
             AtomicLongArray：原子更新长整型数组里的元素。
             AtomicReferenceArray：原子更新引用类型数组里的元素。
-            
-            ps:AtomicIntegerArray类：数组value通过构造方法传递进去，然后会将当前数组复制一份，所以当AtomicIntegerArray对内部的数组元素进行修改时，不会影响到传入的数组。
+                ps:AtomicIntegerArray类：数组value通过构造方法传递进去，然后会将当前数组复制一份，所以当AtomicIntegerArray对内部的数组元素进行修改时，不会影响到传入的数组。
         
         3.原子更新引用
             AtomicReference：原子更新引用类型。
             AtomicReferenceFieldUpdater：原子更新引用类型里的字段。
             AtomicMarkableReference：原子更新带有标记位的引用类型。可以原子的更新一个布尔类型的标记位和引用类型。构造方法是AtomicMarkableReference(V initialRef, boolean initialMark)
-            
-            ps:原子更新基本类型的AtomicInteger，只能更新一个变量
-               如果要原子的更新多个变量，就需要使用这个原子更新引用类型提供的类。
+                ps:原子更新基本类型的AtomicInteger，只能更新一个变量；如果要原子的更新多个变量，就需要使用这个原子更新引用类型提供的类。
         
         4.原子更新字段
             AtomicIntegerFieldUpdater：原子更新整型的字段的更新器。
             AtomicLongFieldUpdater：原子更新长整型字段的更新器。
             *AtomicStampedReference：原子更新带有版本号的引用类型。该类将整数值与引用关联起来，可用于原子的更数据和数据的 *版本号* ，可以解决使用CAS进行原子更新时，可能出现的ABA问题。
+                ps:原子更新字段类都是抽象类，每次使用都时候必须使用静态方法newUpdater创建一个更新器。原子更新类的 *字段的必须使用public volatile修饰符* 。
 
-            ps:原子更新字段类都是抽象类，每次使用都时候必须使用静态方法newUpdater创建一个更新器。原子更新类的 *字段的必须使用public volatile修饰符* 。
+5. 自旋锁:属于乐观锁。线程一直是running(加锁 --> 解锁)，死循环检测锁的标识位，机制不复杂 （CAS
+   互斥锁:属于悲观锁。互斥等待、阻塞。线程会从sleep(加锁) --> running(解锁)，过程中有上下文的切换，cpu的抢占，信号的发送等开销
+   
+6. 公平锁:先进先出
+   非公平锁:在等待锁的过程中，如果有任意新的线程妄图获取锁，都是有很大几率直接获取到锁的（即 不排队直接拿，失败再说
 
-5. 自旋锁 ：属于乐观锁。线程一直是running(加锁 --> 解锁)，死循环检测锁的标识位，机制不复杂 （CAS
-   互斥锁 ：属于悲观锁。互斥等待、阻塞。线程会从sleep(加锁) --> running(解锁)，过程中有上下文的切换，cpu的抢占，信号的发送等开销
-   
-6. 公平锁：先进先出
-   非公平锁：在等待锁的过程中，如果有任意新的线程妄图获取锁，都是有很大几率直接获取到锁的（即 不排队直接拿，失败再说
-   
    都是基于锁内部维护的一个双向链表，表节点node的值 就是 每一个请求当前锁的线程。
     
 to_study
 7. Disruptor（高性能的异步处理框架、并发编程框架 
    采用 CAS无锁机制（乐观锁）、观察者模式、事件监听
-   
-to_study
+
 8. 分布式锁
     如果想在不同的jvm中保证数据同步，使用分布式锁技术。
     缓存实现、 * Zookeeper分布式锁
-    
+
 -------------------------------------------------
 
 - CAS无锁模式：Compare and Swap，即比较再交换。
